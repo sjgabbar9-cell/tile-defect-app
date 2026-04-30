@@ -1,18 +1,31 @@
 import streamlit as st
--weight: 600;import pandas as pd
+import pandas as pd
+from datetime import datetime
+import os
+
+# ================= PAGE CONFIG =================
+st.set_page_config(page_title="SIPL Sorting Defect Report", layout="wide")
+
+# ================= GLOBAL STYLE =================
+st.markdown("""
+<style>
+.stApp {
+    background-color: #FFE5D4;
+    color: black;
+}
+h1, h2, h3, h4, h5, h6, p, div, span {
     color: black !important;
 }
-
-/* Dashboard & defect cards */
+input, textarea {
+    background-color: white !important;
+}
 .card {
     background: white;
     border-radius: 16px;
     padding: 24px;
-    height: 220px;
     text-align: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
-
 .defect-card {
     background: white;
     border-radius: 16px;
@@ -20,7 +33,9 @@ import streamlit as st
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     text-align: center;
 }
-
+button {
+    font-weight: 600;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -55,7 +70,6 @@ if "defects" not in st.session_state:
 def save_to_csv(batch, defects, bad, total):
     rows = []
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
     for dept, items in defects.items():
         for defect, qty in items.items():
             if qty > 0:
@@ -74,7 +88,6 @@ def save_to_csv(batch, defects, bad, total):
                     "Defective Tiles": bad,
                     "Total Tiles": total
                 })
-
     if rows:
         os.makedirs("data", exist_ok=True)
         pd.DataFrame(rows).to_csv(
@@ -83,7 +96,7 @@ def save_to_csv(batch, defects, bad, total):
             index=False
         )
 
-# ================= SCREEN 1: DASHBOARD =================
+# ================= SCREEN 1 =================
 if st.session_state.page == "dashboard":
     col_logo, col_title = st.columns([1, 6])
     with col_logo:
@@ -116,7 +129,6 @@ if st.session_state.page == "dashboard":
 # ================= SCREEN 2 =================
 elif st.session_state.page == "batch":
     st.subheader("Batch Details")
-
     st.session_state.batch["date"] = st.date_input("Production Date")
     st.session_state.batch["shift"] = st.selectbox("Shift", ["Day", "Night"])
     st.session_state.batch["operator"] = st.text_input("Operator")
@@ -126,14 +138,12 @@ elif st.session_state.page == "batch":
     st.session_state.batch["surface"] = st.selectbox(
         "Surface", ["Matt", "Polished", "Glossy", "Satin"]
     )
-
     if st.button("Continue"):
         st.session_state.page = "departments"
 
 # ================= SCREEN 3 =================
 elif st.session_state.page == "departments":
     st.subheader("Departments")
-
     cols = st.columns(3)
     i = 0
     for dept in DEFECTS:
@@ -142,11 +152,10 @@ elif st.session_state.page == "departments":
             st.session_state.current_dept = dept
             st.session_state.page = "defect_entry"
         i = (i + 1) % 3
-
     if st.button("Finish"):
         st.session_state.page = "summary"
 
-# ================= SCREEN 4: DEFECT ENTRY =================
+# ================= SCREEN 4 (DEFECTS INSIDE BOX ✅) =================
 elif st.session_state.page == "defect_entry":
     dept = st.session_state.current_dept
     st.subheader(f"{dept} Defects")
@@ -159,24 +168,19 @@ elif st.session_state.page == "defect_entry":
         with cols[i % 3]:
             st.markdown(f"<div class='defect-card'><b>{defect}</b></div>", unsafe_allow_html=True)
             c1, c2, c3 = st.columns([1, 1, 1])
-
             if c1.button("➖", key=f"m_{dept}_{defect}"):
                 st.session_state.defects[dept][defect] = max(
                     0, st.session_state.defects[dept][defect] - 1
                 )
-
             c2.markdown(f"### {st.session_state.defects[dept][defect]}")
-
             if c3.button("➕", key=f"p_{dept}_{defect}"):
                 st.session_state.defects[dept][defect] += 1
 
 # ================= SCREEN 5 =================
 elif st.session_state.page == "summary":
     st.subheader("Summary")
-
     bad = st.number_input("Defective Tiles", min_value=0)
     total = st.number_input("Total Tiles", min_value=1)
-
     if st.button("Save"):
         save_to_csv(st.session_state.batch,
                     st.session_state.defects,
@@ -185,29 +189,3 @@ elif st.session_state.page == "summary":
         st.session_state.page = "dashboard"
         st.session_state.batch = {}
         st.session_state.defects = {d:{k:0 for k in DEFECTS[d]} for d in DEFECTS}
-from datetime import datetime
-import os
-
-# ================= PAGE CONFIG =================
-st.set_page_config(page_title="SIPL Sorting Defect Report", layout="wide")
-
-# ================= GLOBAL STYLE (ALL TEXT BLACK) =================
-st.markdown("""
-<style>
-.stApp {
-    background-color: #FFE5D4;
-}
-
-/* Force ALL text to black */
-* {
-    color: black !important;
-}
-
-/* Inputs white */
-input, textarea, select {
-    background-color: white !important;
-    color: black !important;
-}
-
-/* Buttons */
-button {
