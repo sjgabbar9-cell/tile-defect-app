@@ -6,36 +6,27 @@ import os
 # ================= PAGE CONFIG =================
 st.set_page_config(page_title="SIPL Sorting Defect Report", layout="wide")
 
-# ================= GLOBAL STYLE =================
+# ================= BASIC STYLE =================
 st.markdown("""
 <style>
-.stApp {
-    background-color: #FFE5D4;
-    color: black;
-}
-h1, h2, h3, h4, h5, h6, p, div, span {
-    color: black !important;
-}
-input, textarea {
-    background-color: white !important;
-}
+.stApp { background-color:#FFE5D4; }
+input, textarea { background-color:white !important; }
 .card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    background:white;
+    border-radius:16px;
+    padding:30px;
+    height:220px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.12);
 }
 .defect-card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    text-align: center;
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    height:170px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.12);
 }
-button {
-    font-weight: 600;
-}
+button { font-weight:600; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -45,12 +36,10 @@ DEFECTS = {
     "Press": ["LAMINATION", "CONTAMINATION", "CENTER CRACK", "SIDE CRACK",
               "DIPRESSION", "DUST", "DEPRESSION", "MIS PATTERN",
               "WEDGING", "Grid Mark", "CHIPS PROBLEM", "SMALL SIZE", "BUMP"],
-    "G/L": ["DUST", "BLACK DUST", "COLOUR DROP", "COLOUR SPOT",
-            "GLAZE DROP", "DIMPLE", "FLOW CUT", "FACE HOLE",
-            "DIGITAL LINING", "DIGITAL MIS PRINT", "GLAZE CRACK",
-            "PIN HOLE"],
-    "Kiln": ["DUST", "BEND", "SIDE CRACK", "OVER FIRED",
-             "SURFACE CRACK", "IRON PARTICALS"],
+    "G/L": ["DUST", "BLACK DUST", "COLOUR DROP", "COLOUR SPOT", "GLAZE DROP",
+            "DIMPLE", "FLOW CUT", "FACE HOLE", "DIGITAL LINING",
+            "DIGITAL MIS PRINT", "GLAZE CRACK", "PIN HOLE"],
+    "Kiln": ["DUST", "BEND", "SIDE CRACK", "OVER FIRED", "SURFACE CRACK"],
     "Polishing": ["SCRATCHES", "CHAMFERING", "CORNER CHIPPING",
                   "SIDE CHIPPING", "WASH OUT", "MIS POLISH"],
     "General": ["SAMPLE", "BROKEN", "R AND D SAMPLE", "QA CHIPPING"]
@@ -64,7 +53,7 @@ if "page" not in st.session_state:
 if "batch" not in st.session_state:
     st.session_state.batch = {}
 if "defects" not in st.session_state:
-    st.session_state.defects = {d: {k: 0 for k in DEFECTS[d]} for d in DEFECTS}
+    st.session_state.defects = {d:{k:0 for k in DEFECTS[d]} for d in DEFECTS}
 
 # ================= SAVE =================
 def save_to_csv(batch, defects, bad, total):
@@ -90,41 +79,31 @@ def save_to_csv(batch, defects, bad, total):
                 })
     if rows:
         os.makedirs("data", exist_ok=True)
-        pd.DataFrame(rows).to_csv(
-            CSV_PATH, mode="a",
-            header=not os.path.exists(CSV_PATH),
-            index=False
-        )
+        pd.DataFrame(rows).to_csv(CSV_PATH, mode="a",
+                                  header=not os.path.exists(CSV_PATH),
+                                  index=False)
 
-# ================= SCREEN 1 =================
+# ================= SCREEN 1: DASHBOARD =================
 if st.session_state.page == "dashboard":
-    col_logo, col_title = st.columns([1, 6])
-    with col_logo:
-        if os.path.exists("logo.png"):
-            st.image("logo.png", width=90)
-    with col_title:
-        st.markdown("## SIPL Sorting Defect Report")
-        st.caption("Select an option to continue")
-
-    st.divider()
+    st.markdown("## SIPL Sorting Defect Report")
+    st.markdown("### Select an option")
 
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("<div class='card'><h3>➕ New Defect Entry</h3></div>", unsafe_allow_html=True)
+        st.markdown("<div class='card'>📋<br><h3>New Defect Entry</h3></div>",
+                    unsafe_allow_html=True)
         if st.button("Open", use_container_width=True):
             st.session_state.page = "batch"
 
     with col2:
-        st.markdown("<div class='card'><h3>📊 Download History</h3></div>", unsafe_allow_html=True)
+        st.markdown("<div class='card'>📊<br><h3>Download History</h3></div>",
+                    unsafe_allow_html=True)
         if os.path.exists(CSV_PATH):
             with open(CSV_PATH, "rb") as f:
-                st.download_button(
-                    "Download CSV",
-                    f,
-                    "defect_history.csv",
-                    use_container_width=True
-                )
+                st.download_button("Download CSV", f,
+                                   "defect_history.csv",
+                                   use_container_width=True)
 
 # ================= SCREEN 2 =================
 elif st.session_state.page == "batch":
@@ -138,6 +117,7 @@ elif st.session_state.page == "batch":
     st.session_state.batch["surface"] = st.selectbox(
         "Surface", ["Matt", "Polished", "Glossy", "Satin"]
     )
+
     if st.button("Continue"):
         st.session_state.page = "departments"
 
@@ -152,10 +132,11 @@ elif st.session_state.page == "departments":
             st.session_state.current_dept = dept
             st.session_state.page = "defect_entry"
         i = (i + 1) % 3
+
     if st.button("Finish"):
         st.session_state.page = "summary"
 
-# ================= SCREEN 4 (DEFECTS INSIDE BOX ✅) =================
+# ================= SCREEN 4: DEFECT ENTRY =================
 elif st.session_state.page == "defect_entry":
     dept = st.session_state.current_dept
     st.subheader(f"{dept} Defects")
@@ -166,8 +147,11 @@ elif st.session_state.page == "defect_entry":
     cols = st.columns(3)
     for i, defect in enumerate(DEFECTS[dept]):
         with cols[i % 3]:
-            st.markdown(f"<div class='defect-card'><b>{defect}</b></div>", unsafe_allow_html=True)
-            c1, c2, c3 = st.columns([1, 1, 1])
+            st.markdown(
+                f"<div class='defect-card'><b>{defect}</b></div>",
+                unsafe_allow_html=True
+            )
+            c1, c2, c3 = st.columns([1,1,1])
             if c1.button("➖", key=f"m_{dept}_{defect}"):
                 st.session_state.defects[dept][defect] = max(
                     0, st.session_state.defects[dept][defect] - 1
@@ -181,11 +165,12 @@ elif st.session_state.page == "summary":
     st.subheader("Summary")
     bad = st.number_input("Defective Tiles", min_value=0)
     total = st.number_input("Total Tiles", min_value=1)
+
     if st.button("Save"):
         save_to_csv(st.session_state.batch,
                     st.session_state.defects,
                     bad, total)
-        st.success("✅ Saved successfully")
+        st.success(" Saved successfully")
         st.session_state.page = "dashboard"
         st.session_state.batch = {}
         st.session_state.defects = {d:{k:0 for k in DEFECTS[d]} for d in DEFECTS}
