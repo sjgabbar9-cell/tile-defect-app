@@ -2,13 +2,16 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
+import base64
 
 # -------------------------------------------------
-# Page & Theme Configuration
+# Page configuration
 # -------------------------------------------------
-st.set_page_config(page_title="Defect Batch Reporting", layout="wide")
+st.set_page_config(page_title="SIPL Sorting Defect Report", layout="wide")
 
-# Peach background for ALL screens
+# -------------------------------------------------
+# Peach background (all screens)
+# -------------------------------------------------
 st.markdown(
     """
     <style>
@@ -51,7 +54,7 @@ DEFECTS = {
 CSV_PATH = "data/defect_history.csv"
 
 # -------------------------------------------------
-# Session Initialization
+# Session State
 # -------------------------------------------------
 if "page" not in st.session_state:
     st.session_state.page = "dashboard"
@@ -60,15 +63,23 @@ if "batch" not in st.session_state:
     st.session_state.batch = {}
 
 if "defects" not in st.session_state:
-    st.session_state.defects = {
-        dept: {d: 0 for d in DEFECTS[dept]} for dept in DEFECTS
-    }
+    st.session_state.defects = {dept: {d: 0 for d in DEFECTS[dept]} for dept in DEFECTS}
 
 if "saved" not in st.session_state:
     st.session_state.saved = False
 
 # -------------------------------------------------
-# CSV Save Function
+# Utility: Load logo as base64
+# -------------------------------------------------
+def load_logo():
+    if os.path.exists("logo.png"):
+        return base64.b64encode(open("logo.png", "rb").read()).decode()
+    return ""
+
+logo_base64 = load_logo()
+
+# -------------------------------------------------
+# CSV Save
 # -------------------------------------------------
 def save_to_csv(batch, defects, defective_tiles, total_tiles):
     rows = []
@@ -106,53 +117,91 @@ def save_to_csv(batch, defects, defective_tiles, total_tiles):
 # SCREEN 1: DASHBOARD
 # -------------------------------------------------
 if st.session_state.page == "dashboard":
-    st.markdown("## 📊 Dashboard")
+
+    # Header bar
+    st.markdown(
+        f"""
+        <div style="background:#ffffff;
+                    padding:15px 25px;
+                    border-radius:12px;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.12);
+                    margin-bottom:25px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;">
+
+            <div style="display:flex; align-items:center; gap:15px;">
+                <img src="data:image/png;base64,{logo_base64}" style="height:45px;">
+                <div>
+                    <div style="font-size:22px; font-weight:700;">
+                        SIPL Sorting Defect Report
+                    </div>
+                    <div style="font-size:13px; opacity:0.7;">
+                        Home — choose an area below
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <span style="background:#dc3545;
+                             color:white;
+                             padding:8px 14px;
+                             border-radius:6px;
+                             font-size:12px;">
+                    Logout
+                </span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown("## 🎛 Dashboard")
     st.markdown("### Select an option to continue")
     st.markdown("---")
 
     col1, col2 = st.columns(2)
 
+    # Left card
     with col1:
         st.markdown(
             """
-            <div style="border-radius:15px;
-                        background:#fff;
+            <div style="background:#ffffff;
+                        border-radius:16px;
                         padding:30px;
                         height:240px;
-                        text-align:center;">
+                        text-align:center;
+                        box-shadow:0 4px 10px rgba(0,0,0,0.1);">
                 <div style="font-size:64px;">📋</div>
                 <h3>Defect Reports</h3>
-                <p>Create / update defect batches</p>
+                <p>Create and update defect batch records</p>
             </div>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
         if st.button("Open Defect Reports", use_container_width=True):
             st.session_state.page = "batch"
 
+    # Right card
     with col2:
         st.markdown(
             """
-            <div style="border-radius:15px;
-                        background:#fff;
+            <div style="background:#ffffff;
+                        border-radius:16px;
                         padding:30px;
                         height:240px;
-                        text-align:center;">
+                        text-align:center;
+                        box-shadow:0 4px 10px rgba(0,0,0,0.1);">
                 <div style="font-size:64px;">⬇</div>
                 <h3>Download Defect History</h3>
-                <p>Export saved defects as CSV</p>
+                <p>Export saved data as CSV</p>
             </div>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
         if os.path.exists(CSV_PATH):
             with open(CSV_PATH, "rb") as f:
-                st.download_button(
-                    "Download CSV",
-                    f,
-                    file_name="defect_history.csv",
-                    use_container_width=True,
-                )
+                st.download_button("Download CSV", f, "defect_history.csv", use_container_width=True)
         else:
             st.info("No defect history yet")
 
@@ -172,7 +221,7 @@ elif st.session_state.page == "batch":
         st.session_state.page = "departments"
 
 # -------------------------------------------------
-# SCREEN 3: DEPARTMENT HUB
+# SCREEN 3: DEPARTMENTS
 # -------------------------------------------------
 elif st.session_state.page == "departments":
     st.subheader("Departments")
@@ -220,12 +269,7 @@ elif st.session_state.page == "summary":
     total_tiles = st.number_input("Total tiles in batch", min_value=1)
 
     if st.button("💾 Save") and not st.session_state.saved:
-        save_to_csv(
-            st.session_state.batch,
-            st.session_state.defects,
-            defective_tiles,
-            total_tiles
-        )
+        save_to_csv(st.session_state.batch, st.session_state.defects, defective_tiles, total_tiles)
         st.session_state.saved = True
 
     if st.session_state.saved:
@@ -237,9 +281,7 @@ elif st.session_state.page == "summary":
                 st.session_state.page = "dashboard"
                 st.session_state.saved = False
                 st.session_state.batch = {}
-                st.session_state.defects = {
-                    dept: {d: 0 for d in DEFECTS[dept]} for dept in DEFECTS
-                }
+                st.session_state.defects = {dept: {d: 0 for d in DEFECTS[dept]} for dept in DEFECTS}
 
         with col2:
             st.info("You may safely close the app now")
