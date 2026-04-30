@@ -4,67 +4,54 @@ from datetime import datetime
 import os
 
 # -------------------------------------------------
-# App configuration
+# Page & Theme Configuration
 # -------------------------------------------------
-st.set_page_config(
-    page_title="Defect Batch Reporting",
-    layout="wide"
+st.set_page_config(page_title="Defect Batch Reporting", layout="wide")
+
+# Peach background for ALL screens
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #FFE5D4;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
 # -------------------------------------------------
-# Defect master
+# Defect Master
 # -------------------------------------------------
 DEFECTS = {
-    "SH/SD": [
-        "IRON PARTICALS", "BODY HOLE", "BODY DUST",
-        "R&D (Low MOR)", "STAIN PROBLEM"
-    ],
-    "Press": [
-        "LAMINATION", "CONTAMINATION", "CENTER CRACK",
-        "SIDE CRACK", "DIPRESSION", "DUST",
-        "DEPRESSION", "MIS PATTERN", "WEDGING",
-        "Grid Mark", "CHIPS PROBLEM", "SMALL SIZE",
-        "BUMP"
-    ],
-    "G/L": [
-        "DUST", "BLACK DUST", "COLOUR DROP", "COLOUR SPOT",
-        "GLAZE DROP", "DIMPLE", "FLOW CUT", "FACE HOLE",
-        "DIGITAL LINING", "DIGITAL MIS PRINT",
-        "GLAZE CRACK", "PIN HOLE", "T.R PROBLEM",
-        "WATER DROP", "WHITE SPOT", "LUMPS",
-        "CONTAMINATION", "APPLICATION PROBLEM",
-        "GLAZE STICKING", "HEAD MARK", "BUBBLES",
-        "SCRAPHER DUST"
-    ],
-    "Kiln": [
-        "DUST", "DUST STECKING", "BEND", "SIDE CRACK",
-        "OVER FIRED", "SURFACE CRACK", "IRON PARTICALS",
-        "CHIPPING", "PIN HOLE", "BODY CRACK",
-        "SHADE VARIATION", "WAVINESS", "FACE HOLE",
-        "ROLLER DUST", "BUMP", "GRANULLA",
-        "BUBBLES", "SULPHUR"
-    ],
-    "Polishing": [
-        "SCRATCHES", "CHAMFERING", "CORNER CHIPPING",
-        "SIDE CHIPPING", "WASH OUT", "CROSS CUTTING",
-        "POLISHING CHIPPING", "MIS POLISH",
-        "DULL POLISHING", "DIAGONAL", "CORNER BROKEN",
-        "SIZE VARIATION", "CHEMICAL SPOT", "ROUGH CUT",
-        "LOAD CRACK", "OUT CUTTING", "NANO STAIN",
-        "MARKER PROBLRM", "POROSITY",
-        "REPOLISHING CHIPPING", "WAVINESS",
-        "PATTA", "RANTIC CRACK", "MACHING MIS"
-    ],
-    "General": [
-        "SAMPLE", "BROKEN", "R AND D SAMPLE",
-        "GRANULLA PROBLEM", "STANDARD PROD.", "QA CHIPPING"
-    ]
+    "SH/SD": ["IRON PARTICALS", "BODY HOLE", "BODY DUST", "R&D (Low MOR)", "STAIN PROBLEM"],
+    "Press": ["LAMINATION", "CONTAMINATION", "CENTER CRACK", "SIDE CRACK", "DIPRESSION",
+              "DUST", "DEPRESSION", "MIS PATTERN", "WEDGING", "Grid Mark",
+              "CHIPS PROBLEM", "SMALL SIZE", "BUMP"],
+    "G/L": ["DUST", "BLACK DUST", "COLOUR DROP", "COLOUR SPOT", "GLAZE DROP", "DIMPLE",
+            "FLOW CUT", "FACE HOLE", "DIGITAL LINING", "DIGITAL MIS PRINT",
+            "GLAZE CRACK", "PIN HOLE", "T.R PROBLEM", "WATER DROP", "WHITE SPOT",
+            "LUMPS", "CONTAMINATION", "APPLICATION PROBLEM", "GLAZE STICKING",
+            "HEAD MARK", "BUBBLES", "SCRAPHER DUST"],
+    "Kiln": ["DUST", "DUST STECKING", "BEND", "SIDE CRACK", "OVER FIRED",
+             "SURFACE CRACK", "IRON PARTICALS", "CHIPPING", "PIN HOLE",
+             "BODY CRACK", "SHADE VARIATION", "WAVINESS", "FACE HOLE",
+             "ROLLER DUST", "BUMP", "GRANULLA", "BUBBLES", "SULPHUR"],
+    "Polishing": ["SCRATCHES", "CHAMFERING", "CORNER CHIPPING", "SIDE CHIPPING",
+                  "WASH OUT", "CROSS CUTTING", "POLISHING CHIPPING", "MIS POLISH",
+                  "DULL POLISHING", "DIAGONAL", "CORNER BROKEN", "SIZE VARIATION",
+                  "CHEMICAL SPOT", "ROUGH CUT", "LOAD CRACK", "OUT CUTTING",
+                  "NANO STAIN", "MARKER PROBLRM", "POROSITY",
+                  "REPOLISHING CHIPPING", "WAVINESS", "PATTA",
+                  "RANTIC CRACK", "MACHING MIS"],
+    "General": ["SAMPLE", "BROKEN", "R AND D SAMPLE",
+                "GRANULLA PROBLEM", "STANDARD PROD.", "QA CHIPPING"]
 }
 
 CSV_PATH = "data/defect_history.csv"
 
 # -------------------------------------------------
-# Session state initialization
+# Session Initialization
 # -------------------------------------------------
 if "page" not in st.session_state:
     st.session_state.page = "dashboard"
@@ -74,22 +61,24 @@ if "batch" not in st.session_state:
 
 if "defects" not in st.session_state:
     st.session_state.defects = {
-        dept: {d: 0 for d in DEFECTS[dept]}
-        for dept in DEFECTS
+        dept: {d: 0 for d in DEFECTS[dept]} for dept in DEFECTS
     }
 
+if "saved" not in st.session_state:
+    st.session_state.saved = False
+
 # -------------------------------------------------
-# CSV save function
+# CSV Save Function
 # -------------------------------------------------
 def save_to_csv(batch, defects, defective_tiles, total_tiles):
     rows = []
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     for dept, defect_map in defects.items():
         for defect, qty in defect_map.items():
             if qty > 0:
                 rows.append({
-                    "Timestamp": timestamp,
+                    "Timestamp": ts,
                     "Date": batch.get("date"),
                     "Shift": batch.get("shift"),
                     "Operator": batch.get("operator"),
@@ -114,24 +103,61 @@ def save_to_csv(batch, defects, defective_tiles, total_tiles):
         df.to_csv(CSV_PATH, index=False)
 
 # -------------------------------------------------
-# Dashboard
+# SCREEN 1: DASHBOARD
 # -------------------------------------------------
 if st.session_state.page == "dashboard":
-    st.title("📊 Dashboard")
+    st.markdown("## 📊 Dashboard")
+    st.markdown("### Select an option to continue")
+    st.markdown("---")
 
-    if st.button("📋 Defect Reports"):
-        st.session_state.page = "batch"
+    col1, col2 = st.columns(2)
 
-    if os.path.exists(CSV_PATH):
-        with open(CSV_PATH, "rb") as f:
-            st.download_button(
-                "⬇ Download Defect History (CSV)",
-                f,
-                file_name="defect_history.csv"
-            )
+    with col1:
+        st.markdown(
+            """
+            <div style="border-radius:15px;
+                        background:#fff;
+                        padding:30px;
+                        height:240px;
+                        text-align:center;">
+                <div style="font-size:64px;">📋</div>
+                <h3>Defect Reports</h3>
+                <p>Create / update defect batches</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if st.button("Open Defect Reports", use_container_width=True):
+            st.session_state.page = "batch"
+
+    with col2:
+        st.markdown(
+            """
+            <div style="border-radius:15px;
+                        background:#fff;
+                        padding:30px;
+                        height:240px;
+                        text-align:center;">
+                <div style="font-size:64px;">⬇</div>
+                <h3>Download Defect History</h3>
+                <p>Export saved defects as CSV</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if os.path.exists(CSV_PATH):
+            with open(CSV_PATH, "rb") as f:
+                st.download_button(
+                    "Download CSV",
+                    f,
+                    file_name="defect_history.csv",
+                    use_container_width=True,
+                )
+        else:
+            st.info("No defect history yet")
 
 # -------------------------------------------------
-# Batch data page
+# SCREEN 2: BATCH DATA
 # -------------------------------------------------
 elif st.session_state.page == "batch":
     st.subheader("Batch Data")
@@ -146,7 +172,7 @@ elif st.session_state.page == "batch":
         st.session_state.page = "departments"
 
 # -------------------------------------------------
-# Departments hub
+# SCREEN 3: DEPARTMENT HUB
 # -------------------------------------------------
 elif st.session_state.page == "departments":
     st.subheader("Departments")
@@ -156,19 +182,15 @@ elif st.session_state.page == "departments":
 
     cols = st.columns(3)
     i = 0
-
     for dept in DEFECTS:
         total = sum(st.session_state.defects[dept].values())
-        if cols[i].button(
-            f"{dept}\nDefects: {total}",
-            use_container_width=True
-        ):
+        if cols[i].button(f"{dept}\nDefects: {total}", use_container_width=True):
             st.session_state.current_dept = dept
             st.session_state.page = "defect_entry"
         i = (i + 1) % 3
 
 # -------------------------------------------------
-# Defect entry page
+# SCREEN 4: DEFECT ENTRY
 # -------------------------------------------------
 elif st.session_state.page == "defect_entry":
     dept = st.session_state.current_dept
@@ -182,41 +204,42 @@ elif st.session_state.page == "defect_entry":
         with cols[i % 3]:
             st.markdown(f"**{defect}**")
             c1, c2, c3 = st.columns([1, 1, 1])
-
             if c1.button("➖", key=f"m-{dept}-{defect}"):
-                st.session_state.defects[dept][defect] = max(
-                    0, st.session_state.defects[dept][defect] - 1
-                )
-
-            c2.markdown(
-                str(st.session_state.defects[dept][defect]),
-                unsafe_allow_html=True
-            )
-
+                st.session_state.defects[dept][defect] = max(0, st.session_state.defects[dept][defect] - 1)
+            c2.markdown(st.session_state.defects[dept][defect])
             if c3.button("➕", key=f"p-{dept}-{defect}"):
                 st.session_state.defects[dept][defect] += 1
 
 # -------------------------------------------------
-# Summary & save page
+# SCREEN 5: SUMMARY & SAVE
 # -------------------------------------------------
 elif st.session_state.page == "summary":
     st.subheader("Batch Summary")
 
-    defective_tiles = st.number_input(
-        "Number of defected tiles",
-        min_value=0
-    )
-    total_tiles = st.number_input(
-        "Total tiles in batch",
-        min_value=1
-    )
+    defective_tiles = st.number_input("Number of defected tiles", min_value=0)
+    total_tiles = st.number_input("Total tiles in batch", min_value=1)
 
-    if st.button("💾 Save"):
+    if st.button("💾 Save") and not st.session_state.saved:
         save_to_csv(
             st.session_state.batch,
             st.session_state.defects,
             defective_tiles,
             total_tiles
         )
+        st.session_state.saved = True
+
+    if st.session_state.saved:
         st.success("✅ Data saved successfully")
-        st.session_state.page = "dashboard"
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🔙 Go to Dashboard", use_container_width=True):
+                st.session_state.page = "dashboard"
+                st.session_state.saved = False
+                st.session_state.batch = {}
+                st.session_state.defects = {
+                    dept: {d: 0 for d in DEFECTS[dept]} for dept in DEFECTS
+                }
+
+        with col2:
+            st.info("You may safely close the app now")
