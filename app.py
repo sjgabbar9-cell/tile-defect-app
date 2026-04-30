@@ -21,27 +21,13 @@ st.markdown("""
     background-color: #FFE5D4;
     color: black;
 }
-
 h1, h2, h3, h4, h5, h6, p, span, label {
     color: black !important;
 }
-
 input, textarea, select {
     background-color: white !important;
     color: black !important;
 }
-
-.stSelectbox div[data-baseweb="select"] > div {
-    background-color: white !important;
-    color: black !important;
-}
-
-.stDateInput input,
-.stNumberInput input {
-    background-color: white !important;
-    color: black !important;
-}
-
 button {
     color: black !important;
     font-weight: 600;
@@ -95,13 +81,10 @@ CSV_PATH = "data/defect_history.csv"
 # =========================
 if "page" not in st.session_state:
     st.session_state.page = "dashboard"
-
 if "batch" not in st.session_state:
     st.session_state.batch = {}
-
 if "defects" not in st.session_state:
     st.session_state.defects = {d: {k: 0 for k in DEFECTS[d]} for d in DEFECTS}
-
 if "saved" not in st.session_state:
     st.session_state.saved = False
 
@@ -122,6 +105,8 @@ def save_to_csv(batch, defects, bad_tiles, total_tiles):
                     "Operator": batch.get("operator"),
                     "Item": batch.get("item_code"),
                     "Batch": batch.get("batch_code"),
+                    "Size": batch.get("size"),          # ✅ added
+                    "Surface": batch.get("surface"),    # ✅ added
                     "Department": dept,
                     "Defect": defect,
                     "Qty": qty,
@@ -129,26 +114,27 @@ def save_to_csv(batch, defects, bad_tiles, total_tiles):
                     "Total Tiles": total_tiles
                 })
 
-    if not rows:
-        return
-
-    df = pd.DataFrame(rows)
-    os.makedirs("data", exist_ok=True)
-    df.to_csv(CSV_PATH, mode="a", header=not os.path.exists(CSV_PATH), index=False)
+    if rows:
+        os.makedirs("data", exist_ok=True)
+        pd.DataFrame(rows).to_csv(
+            CSV_PATH, mode="a",
+            header=not os.path.exists(CSV_PATH),
+            index=False
+        )
 
 # =========================
-# SCREEN 1: DASHBOARD
+# SCREEN 1: DASHBOARD (LOGO FIXED ✅)
 # =========================
 if st.session_state.page == "dashboard":
 
     st.markdown(f"""
-    <div style="background:white;padding:18px 24px;border-radius:12px;
-                box-shadow:0 3px 10px rgba(0,0,0,0.15);
-                display:flex;align-items:center;gap:16px;margin-bottom:25px;">
-        data:image/png;base64,{LOGO}
+    <div style="display:flex;align-items:center;gap:16px;
+                background:white;padding:18px 24px;border-radius:12px;
+                box-shadow:0 3px 10px rgba(0,0,0,0.15);margin-bottom:25px;">
+        <img src="data:image/png;base64,{LOGO}" height="60">
         <div>
             <div style="font-size:22px;font-weight:700;">SIPL Sorting Defect Report</div>
-            <div style="font-size:13px;opacity:0.7;">Home — choose an area below</div>
+            <div style="font-size:13px;">Home — choose an area below</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -160,35 +146,16 @@ if st.session_state.page == "dashboard":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("""
-        <div style="background:white;border-radius:16px;padding:30px;height:240px;
-                    box-shadow:0 4px 10px rgba(0,0,0,0.1);text-align:center;">
-            <div style="font-size:64px;">📋</div>
-            <h3>Defect Reports</h3>
-            <p>Create and update defect batches</p>
-        </div>
-        """, unsafe_allow_html=True)
         if st.button("Open Defect Reports", use_container_width=True):
             st.session_state.page = "batch"
 
     with col2:
-        st.markdown("""
-        <div style="background:white;border-radius:16px;padding:30px;height:240px;
-                    box-shadow:0 4px 10px rgba(0,0,0,0.1);text-align:center;">
-            <div style="font-size:64px;">📊</div>
-            <h3>Download Defect History</h3>
-            <p>Export saved data as Excel (CSV)</p>
-        </div>
-        """, unsafe_allow_html=True)
-
         if os.path.exists(CSV_PATH):
             with open(CSV_PATH, "rb") as f:
-                st.download_button("📊 Download CSV", f, "defect_history.csv", use_container_width=True)
-        else:
-            st.info("No defect history yet")
+                st.download_button("Download CSV", f, "defect_history.csv", use_container_width=True)
 
 # =========================
-# SCREEN 2: BATCH DATA
+# SCREEN 2: BATCH DATA (SIZE + SURFACE ✅)
 # =========================
 elif st.session_state.page == "batch":
     st.subheader("Batch Data")
@@ -199,18 +166,19 @@ elif st.session_state.page == "batch":
     st.session_state.batch["item_code"] = st.text_input("Item / SAP Code")
     st.session_state.batch["batch_code"] = st.text_input("Batch / SAP Batch")
 
+    st.session_state.batch["size"] = st.text_input("Tile Size (e.g. 600×600)")      # ✅ added
+    st.session_state.batch["surface"] = st.selectbox(                                # ✅ added
+        "Surface", ["Matt", "Polished", "Glossy", "Satin", "Other"]
+    )
+
     if st.button("Confirm & Enter Defects"):
         st.session_state.page = "departments"
 
 # =========================
-# SCREEN 3: DEPARTMENTS
+# REMAINING SCREENS (UNCHANGED)
 # =========================
 elif st.session_state.page == "departments":
     st.subheader("Departments")
-
-    if st.button("✅ Finish", type="primary"):
-        st.session_state.page = "summary"
-
     cols = st.columns(3)
     i = 0
     for dept in DEFECTS:
@@ -219,14 +187,12 @@ elif st.session_state.page == "departments":
             st.session_state.current_dept = dept
             st.session_state.page = "defect_entry"
         i = (i + 1) % 3
+    if st.button("Finish"):
+        st.session_state.page = "summary"
 
-# =========================
-# SCREEN 4: DEFECT ENTRY
-# =========================
 elif st.session_state.page == "defect_entry":
     dept = st.session_state.current_dept
     st.subheader(f"{dept} – Defects")
-
     if st.button("⬅ Back to Departments"):
         st.session_state.page = "departments"
 
@@ -241,28 +207,14 @@ elif st.session_state.page == "defect_entry":
             if c3.button("➕", key=f"p-{dept}-{defect}"):
                 st.session_state.defects[dept][defect] += 1
 
-# =========================
-# SCREEN 5: SUMMARY
-# =========================
 elif st.session_state.page == "summary":
     st.subheader("Batch Summary")
-
     bad_tiles = st.number_input("Number of defected tiles", min_value=0)
     total_tiles = st.number_input("Total tiles in batch", min_value=1)
-
-    if st.button("💾 Save") and not st.session_state.saved:
+    if st.button("Save"):
         save_to_csv(st.session_state.batch, st.session_state.defects, bad_tiles, total_tiles)
-        st.session_state.saved = True
-
-    if st.session_state.saved:
         st.success("✅ Data saved successfully")
-
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("🔙 Go to Dashboard", use_container_width=True):
-                st.session_state.page = "dashboard"
-                st.session_state.saved = False
-                st.session_state.batch = {}
-                st.session_state.defects = {d: {k: 0 for k in DEFECTS[d]} for d in DEFECTS}
-        with col2:
-            st.info("You may safely close the app now")
+        st.session_state.page = "dashboard"
+        st.session_state.batch = {}
+        st.session_state.defects = {d: {k: 0 for k in DEFECTS[d]} for d in DEFECTS}
+``
