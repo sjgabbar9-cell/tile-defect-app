@@ -110,9 +110,7 @@ def save_to_csv(batch, defects, bad, total):
     if not rows:
         return
 
-    os.makedirs("data", exist_ok=True)
-
-    # ✅ Desired fixed schema (order matters)
+    # ✅ Fixed schema (order matters)
     columns_order = [
         "Timestamp", "Date", "Shift", "Operator",
         "Item", "Batch", "Size", "Surface",
@@ -121,30 +119,32 @@ def save_to_csv(batch, defects, bad, total):
     ]
 
     new_df = pd.DataFrame(rows).reindex(columns=columns_order)
+    os.makedirs("data", exist_ok=True)
 
-    # ✅ If file already exists, FIX schema ONCE
-    if os.path.exists(CSV_PATH):
-        old_df = pd.read_csv(CSV_PATH)
+    try:
+        # ✅ Try reading existing CSV
+        if os.path.exists(CSV_PATH):
+            old_df = pd.read_csv(CSV_PATH)
 
-        # Add missing columns if they don’t exist
-        for col in columns_order:
-            if col not in old_df.columns:
-                old_df[col] = ""
+            # Add missing columns if needed
+            for col in columns_order:
+                if col not in old_df.columns:
+                    old_df[col] = ""
 
-        # Reorder columns
-        old_df = old_df.reindex(columns=columns_order)
+            old_df = old_df.reindex(columns=columns_order)
+            final_df = pd.concat([old_df, new_df], ignore_index=True)
+            final_df.to_csv(CSV_PATH, index=False)
 
-        # Append new data
-        final_df = pd.concat([old_df, new_df], ignore_index=True)
+        else:
+            new_df.to_csv(CSV_PATH, index=False)
 
-        # Rewrite CSV with corrected header
-        final_df.to_csv(CSV_PATH, index=False)
+    except Exception:
+        # 🔴 CSV is corrupted → back it up and recreate
+        backup_path = CSV_PATH.replace(".csv", "_backup_corrupt.csv")
+        os.rename(CSV_PATH, backup_path)
 
-    else:
-        # Fresh file
+        # Create fresh CSV with correct headers
         new_df.to_csv(CSV_PATH, index=False)
-
-
 # =========================
 # SCREEN 1: DASHBOARD
 # =========================
