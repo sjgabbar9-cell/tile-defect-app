@@ -217,4 +217,4 @@ elif st.session_state.page == "summary":
         st.session_state.page = "dashboard"
         st.session_state.batch = {}
         st.session_state.defects = {d: {k: 0 for k in DEFECTS[d]} for d in DEFECTS}
-``
+
