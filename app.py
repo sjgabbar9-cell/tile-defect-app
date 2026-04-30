@@ -110,6 +110,9 @@ def save_to_csv(batch, defects, bad, total):
     if not rows:
         return
 
+    os.makedirs("data", exist_ok=True)
+
+    # ✅ Desired fixed schema (order matters)
     columns_order = [
         "Timestamp", "Date", "Shift", "Operator",
         "Item", "Batch", "Size", "Surface",
@@ -117,15 +120,30 @@ def save_to_csv(batch, defects, bad, total):
         "Defective Tiles", "Total Tiles"
     ]
 
-    df = pd.DataFrame(rows).reindex(columns=columns_order)
+    new_df = pd.DataFrame(rows).reindex(columns=columns_order)
 
-    os.makedirs("data", exist_ok=True)
-    df.to_csv(
-        CSV_PATH,
-        mode="a",
-        header=not os.path.exists(CSV_PATH),
-        index=False
-    )
+    # ✅ If file already exists, FIX schema ONCE
+    if os.path.exists(CSV_PATH):
+        old_df = pd.read_csv(CSV_PATH)
+
+        # Add missing columns if they don’t exist
+        for col in columns_order:
+            if col not in old_df.columns:
+                old_df[col] = ""
+
+        # Reorder columns
+        old_df = old_df.reindex(columns=columns_order)
+
+        # Append new data
+        final_df = pd.concat([old_df, new_df], ignore_index=True)
+
+        # Rewrite CSV with corrected header
+        final_df.to_csv(CSV_PATH, index=False)
+
+    else:
+        # Fresh file
+        new_df.to_csv(CSV_PATH, index=False)
+
 
 # =========================
 # SCREEN 1: DASHBOARD
