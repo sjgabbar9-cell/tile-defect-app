@@ -258,14 +258,14 @@ elif st.session_state.page == "summary":
     bad = st.number_input("Defective Tiles", min_value=0)
     total = st.number_input("Total Tiles", min_value=1)
 
-  if st.button("Save"):
-    save_to_csv_flat(
-        st.session_state.batch,
-        st.session_state.flat_defects,
-        bad,
-        total
-    )
-    st.session_state.saved = True
+    if st.button("Save"):
+        save_to_csv_flat(
+            st.session_state.batch,
+            st.session_state.flat_defects,
+            bad,
+            total
+        )
+        st.session_state.saved = True
 
     if st.session_state.saved:
         st.success("✅ Data saved successfully")
