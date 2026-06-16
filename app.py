@@ -67,8 +67,7 @@ DEFECTS = {
     "General": ["SAMPLE", "BROKEN", "R AND D SAMPLE", "QA CHIPPING"]
 }
 
-CSV_PATH = "data/defect_history.csv"
-
+CSV_PATH = "data/defect_entry_flat.csv"
 # =========================
 # SESSION STATE
 # =========================
@@ -84,67 +83,39 @@ if "saved" not in st.session_state:
 # =========================
 # SAVE CSV (FIXED COLUMN ORDER ✅)
 # =========================
-def save_to_csv(batch, defects, bad, total):
+def save_to_csv_flat(batch, flat_data, bad, total):
     rows = []
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    for dept, items in defects.items():
-        for defect, qty in items.items():
-            if qty > 0:
-                rows.append({
-                    "Timestamp": ts,
-                    "Date": batch.get("date"),
-                    "Shift": batch.get("shift"),
-                    "Operator": batch.get("operator"),
-                    "Item": batch.get("item_code"),
-                    "Batch": batch.get("batch_code"),
-                    "Size": batch.get("size"),
-                    "Surface": batch.get("surface"),
-                    "Department": dept,
-                    "Defect": defect,
-                    "Qty": qty,
-                    "Defective Tiles": bad,
-                    "Total Tiles": total
-                })
+    for row in flat_data:
+        if row["qty"] > 0:
+            rows.append({
+                "Timestamp": ts,
+                "Date": batch.get("date"),
+                "Shift": batch.get("shift"),
+                "Operator": batch.get("operator"),
+                "Item": batch.get("item_code"),
+                "Batch": batch.get("batch_code"),
+                "Size": batch.get("size"),
+                "Surface": batch.get("surface"),
+                "Department": row["dept"],
+                "Defect": row["defect"],
+                "Qty": row["qty"],
+                "Defective Tiles": bad,
+                "Total Tiles": total
+            })
 
     if not rows:
         return
 
-    # ✅ Fixed schema (order matters)
-    columns_order = [
-        "Timestamp", "Date", "Shift", "Operator",
-        "Item", "Batch", "Size", "Surface",
-        "Department", "Defect", "Qty",
-        "Defective Tiles", "Total Tiles"
-    ]
-
-    new_df = pd.DataFrame(rows).reindex(columns=columns_order)
+    df = pd.DataFrame(rows)
     os.makedirs("data", exist_ok=True)
 
-    try:
-        # ✅ Try reading existing CSV
-        if os.path.exists(CSV_PATH):
-            old_df = pd.read_csv(CSV_PATH)
+    if os.path.exists(CSV_PATH):
+        old = pd.read_csv(CSV_PATH)
+        df = pd.concat([old, df], ignore_index=True)
 
-            # Add missing columns if needed
-            for col in columns_order:
-                if col not in old_df.columns:
-                    old_df[col] = ""
-
-            old_df = old_df.reindex(columns=columns_order)
-            final_df = pd.concat([old_df, new_df], ignore_index=True)
-            final_df.to_csv(CSV_PATH, index=False)
-
-        else:
-            new_df.to_csv(CSV_PATH, index=False)
-
-    except Exception:
-        # 🔴 CSV is corrupted → back it up and recreate
-        backup_path = CSV_PATH.replace(".csv", "_backup_corrupt.csv")
-        os.rename(CSV_PATH, backup_path)
-
-        # Create fresh CSV with correct headers
-        new_df.to_csv(CSV_PATH, index=False)
+    df.to_csv(CSV_PATH, index=False)
 # =========================
 # SCREEN 1: DASHBOARD
 # =========================
@@ -200,43 +171,84 @@ elif st.session_state.page == "batch":
         st.session_state.page = "departments"
 
 # =========================
-# SCREEN 3: DEPARTMENTS
+# =========================
+# NEW SINGLE TABLE SCREEN ✅
 # =========================
 elif st.session_state.page == "departments":
-    st.subheader("Departments")
-    cols = st.columns(3)
-    i = 0
-    for dept in DEFECTS:
-        total = sum(st.session_state.defects[dept].values())
-        if cols[i].button(f"{dept}\nDefects: {total}", use_container_width=True):
-            st.session_state.current_dept = dept
-            st.session_state.page = "defect_entry"
-        i = (i + 1) % 3
 
+    st.subheader("Defect Entry (All Departments)")
+
+    # ✅ Initialize flat structure
+    if "flat_defects" not in st.session_state:
+        flat = []
+        for dept, defects in DEFECTS.items():
+            for d in defects:
+                flat.append({
+                    "dept": dept,
+                    "defect": d,
+                    "qty": 0
+                })
+        st.session_state.flat_defects = flat
+
+    data = st.session_state.flat_defects
+
+    # ✅ Table header
+    col1, col2, col3, col4 = st.columns([1, 3, 4, 3])
+    col1.markdown("**S.No.**")
+    col2.markdown("**Department**")
+    col3.markdown("**Defect**")
+    col4.markdown("**Quantity**")
+
+    st.divider()
+
+    last_dept = None
+
+    for i, row in enumerate(data):
+
+        c1, c2, c3, c4 = st.columns([1, 3, 4, 3])
+
+        c1.write(i + 1)
+
+        # Show department only once per group
+        dept_display = row["dept"] if row["dept"] != last_dept else ""
+        c2.write(dept_display)
+        last_dept = row["dept"]
+
+        c3.write(row["defect"])
+
+        # ➖ ➕ buttons
+        b1, b2, b3 = c4.columns([1,1,1])
+
+        if b1.button("➖", key=f"minus_{i}"):
+            data[i]["qty"] = max(0, data[i]["qty"] - 1)
+
+        b2.markdown(f"### {data[i]['qty']}")
+
+        if b3.button("➕", key=f"plus_{i}"):
+            data[i]["qty"] += 1
+
+        # ✅ Add new defect after department ends
+        next_dept = data[i+1]["dept"] if i < len(data)-1 else None
+
+        if next_dept != row["dept"]:
+            new_defect = st.text_input(
+                f"Add defect in {row['dept']}",
+                key=f"add_{row['dept']}_{i}"
+            )
+
+            if st.button(f"Add → {row['dept']}", key=f"btn_add_{i}"):
+                if new_defect.strip():
+                    data.insert(i+1, {
+                        "dept": row["dept"],
+                        "defect": new_defect.upper(),
+                        "qty": 0
+                    })
+
+            st.divider()
+
+    # ✅ Finish
     if st.button("Finish"):
         st.session_state.page = "summary"
-
-# =========================
-# SCREEN 4: DEFECT ENTRY
-# =========================
-elif st.session_state.page == "defect_entry":
-    dept = st.session_state.current_dept
-    st.subheader(f"{dept} Defects")
-
-    cols = st.columns(3)
-    for i, defect in enumerate(DEFECTS[dept]):
-        with cols[i % 3]:
-            st.markdown(f"<div class='defect-card'><b>{defect}</b></div>", unsafe_allow_html=True)
-            c1, c2, c3 = st.columns([1,1,1])
-            if c1.button("➖", key=f"m_{dept}_{defect}"):
-                st.session_state.defects[dept][defect] = max(0, st.session_state.defects[dept][defect] - 1)
-            c2.markdown(f"### {st.session_state.defects[dept][defect]}")
-            if c3.button("➕", key=f"p_{dept}_{defect}"):
-                st.session_state.defects[dept][defect] += 1
-
-    if st.button("⬅ Back"):
-        st.session_state.page = "departments"
-
 # =========================
 # SCREEN 5: SUMMARY (GO BACK ✅)
 # =========================
@@ -247,7 +259,13 @@ elif st.session_state.page == "summary":
     total = st.number_input("Total Tiles", min_value=1)
 
     if st.button("Save"):
-        save_to_csv(st.session_state.batch, st.session_state.defects, bad, total)
+       save_to_csv_flat(
+    st.session_state.batch,
+    st.session_state.flat_defects,
+    bad,
+    total
+)
+
         st.session_state.saved = True
 
     if st.session_state.saved:
