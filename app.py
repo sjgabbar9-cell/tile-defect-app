@@ -150,7 +150,8 @@ if st.session_state.page == "dashboard":
             <h3>Download History</h3>
         </div>
         """, unsafe_allow_html=True)
-       if st.button("Open History", use_container_width=True):
+        
+        if st.button("Open History", use_container_width=True):
            st.session_state.page = "history"
 # =========================
 # SCREEN 2: BATCH DATA
