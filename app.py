@@ -150,10 +150,8 @@ if st.session_state.page == "dashboard":
             <h3>Download History</h3>
         </div>
         """, unsafe_allow_html=True)
-        if os.path.exists(CSV_PATH):
-            with open(CSV_PATH, "rb") as f:
-                st.download_button("Download CSV", f, "defect_history.csv", use_container_width=True)
-
+       if st.button("Open History", use_container_width=True):
+           st.session_state.page = "history"
 # =========================
 # SCREEN 2: BATCH DATA
 # =========================
@@ -275,3 +273,44 @@ elif st.session_state.page == "summary":
             st.session_state.saved = False
             st.session_state.batch = {}
             st.session_state.defects = {d: {k: 0 for k in DEFECTS[d]} for d in DEFECTS}
+# =========================
+# SCREEN 6: HISTORY ✅
+# =========================
+elif st.session_state.page == "history":
+
+    st.subheader("Defect History")
+
+    if not os.path.exists(CSV_PATH):
+        st.warning("No data available")
+    else:
+        df = pd.read_csv(CSV_PATH)
+
+        # ✅ Aggregate batch-level data
+        summary = df.groupby(
+            ["Date", "Shift", "Operator", "Item", "Batch", "Size", "Surface"],
+            as_index=False
+        ).agg({
+            "Defective Tiles": "max",
+            "Total Tiles": "max"
+        })
+
+        # ✅ Defect %
+        summary["Defect %"] = (
+            summary["Defective Tiles"] / summary["Total Tiles"] * 100
+        ).round(2)
+
+        st.dataframe(summary, use_container_width=True)
+
+        # ✅ Download button at top
+        csv = summary.to_csv(index=False).encode("utf-8")
+
+        st.download_button(
+            "⬇ Download Report",
+            csv,
+            "defect_summary.csv",
+            "text/csv",
+            use_container_width=True
+        )
+
+    if st.button("⬅ Back"):
+        st.session_state.page = "dashboard"
