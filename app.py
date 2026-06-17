@@ -343,9 +343,9 @@ elif st.session_state.page == "history":
 
             # ✅ Load defects of selected batch
         batch_df = df_full[
-            (filtered_df_full["Date"].astype(str) == str(record["Date"])) &
-            (filtered_df_full["Batch"].astype(str) == str(record["Batch"])) &
-            (filtered_df_full["Item"].astype(str) == str(record["Item"]))
+            (df_full["Date"].astype(str) == str(record["Date"])) &
+            (df_full["Batch"].astype(str) == str(record["Batch"])) &
+            (df_full["Item"].astype(str) == str(record["Item"]))
         ]
 
     # ✅ Convert to Screen 3 structure
