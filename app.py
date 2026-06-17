@@ -285,6 +285,7 @@ elif st.session_state.page == "history":
         st.warning("No data available")
     else:
         df = pd.read_csv(CSV_PATH)
+        df["Date"] = df["Date"].astype(str)
 
         # ✅ Aggregate batch-level data
         summary = df.groupby(
@@ -297,6 +298,7 @@ elif st.session_state.page == "history":
 
         # ✅ Defect %
         summary["Defect %"] = (
+            summary["Date"] = summary["Date"].astype(str)
             summary["Defective Tiles"] / summary["Total Tiles"] * 100
         ).round(2)
         
@@ -307,8 +309,7 @@ elif st.session_state.page == "history":
 
         st.dataframe(summary, use_container_width=True)
 
-        selected_row = summary.loc[selected_index]
-
+        
         # ✅ Batch Details
         selected_row = summary.loc[selected_index].to_dict()
         # ✅ Batch Details
@@ -332,11 +333,14 @@ elif st.session_state.page == "history":
             (df["Batch"] == selected_row["Batch"]) &
             (df["Item"] == selected_row["Item"])
         ]
+        if filtered_df.empty:
+            st.warning("No matching defect data found")
+        else:
+            st.dataframe(
+                filtered_df[["Department", "Defect", "Qty"]],
+                use_container_width=True
+            )
 
-        st.dataframe(
-            filtered_df[["Department", "Defect", "Qty"]],
-            use_container_width=True
-        )
 
 
 
