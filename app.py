@@ -328,9 +328,9 @@ elif st.session_state.page == "history":
         st.subheader("Defect Details")
 
         filtered_df = df[
-        (df["Date"] == selected_row["Date"]) &
-        (df["Batch"] == selected_row["Batch"]) &
-        (df["Item"] == selected_row["Item"])
+            (df["Date"] == selected_row["Date"]) &
+            (df["Batch"] == selected_row["Batch"]) &
+            (df["Item"] == selected_row["Item"])
         ]
 
         st.dataframe(
