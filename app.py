@@ -348,6 +348,7 @@ elif st.session_state.page == "history":
 
         # ✅ Use full dataset (not summary)
     df_full = df.copy()
+    col1, col2 = st.columns(2)
 
 # =========================
        # ✅ 1. DEFECT-WISE PARETO
@@ -362,7 +363,7 @@ elif st.session_state.page == "history":
        # cumulative %
     defect_data["Cum %"] = defect_data["Qty"].cumsum() / defect_data["Qty"].sum() * 100
 
-    fig, ax1 = plt.subplots()
+    fig, ax1 = plt.subplots(figsize=(5,3))  # ✅ SMALL SIZE
 
        # bar chart
     ax1.bar(defect_data["Defect"], defect_data["Qty"])
@@ -389,7 +390,7 @@ elif st.session_state.page == "history":
 
     dept_data["Cum %"] = dept_data["Qty"].cumsum() / dept_data["Qty"].sum() * 100
 
-    fig2, ax1 = plt.subplots()
+    fig2, ax1 = plt.subplots(figsize=(5,3))  # ✅ SMALL SIZE
 
 # bar
     ax1.bar(dept_data["Department"], dept_data["Qty"])
