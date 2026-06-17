@@ -339,7 +339,7 @@ elif st.session_state.page == "history":
 
     st.session_state.page = "detail"
 
-        st.dataframe(summary, use_container_width=True)
+    st.dataframe(summary, use_container_width=True)
 
         
         # ✅ Batch Details
