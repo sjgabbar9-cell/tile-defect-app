@@ -326,20 +326,20 @@ elif st.session_state.page == "history":
                 })
 
     # ✅ Store into session
-    st.session_state.flat_defects = flat
-    st.session_state.batch = {
-        "date": record["Date"],
-        "shift": record["Shift"],
-        "operator": record["Operator"],
-        "item_code": record["Item"],
-        "batch_code": record["Batch"],
-        "size": record["Size"],
-        "surface": record["Surface"],
-    }
+            st.session_state.flat_defects = flat
+            st.session_state.batch = {
+                "date": record["Date"],
+                "shift": record["Shift"],
+                "operator": record["Operator"],
+                "item_code": record["Item"],
+                "batch_code": record["Batch"],
+                "size": record["Size"],
+                "surface": record["Surface"],
+            }
 
-    st.session_state.page = "detail"
+            st.session_state.page = "detail"
 
-    st.dataframe(summary, use_container_width=True)
+            st.dataframe(summary, use_container_width=True)
 
         
         # ✅ Batch Details
