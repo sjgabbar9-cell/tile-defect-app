@@ -369,7 +369,7 @@ elif st.session_state.page == "history":
             "surface": record["Surface"],
         }
 
-         st.session_state.page = "detail"
+        st.session_state.page = "detail"
 
     st.dataframe(summary, use_container_width=True)
    # ✅ Date Range Filter
