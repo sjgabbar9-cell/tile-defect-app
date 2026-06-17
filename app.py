@@ -370,6 +370,7 @@ elif st.session_state.page == "history":
         }
 
         st.session_state.page = "detail"
+        st.rerun()
 
     st.dataframe(summary, use_container_width=True)
 
@@ -473,6 +474,7 @@ elif st.session_state.page == "history":
         plt.title("Department-wise Pareto")
 
         st.pyplot(fig2)
+        
         # ✅ Save image to buffer
         buf2 = io.BytesIO()
         fig2.savefig(buf2, format="png", bbox_inches="tight")
@@ -483,7 +485,7 @@ elif st.session_state.page == "history":
             data=buf2,
             file_name="department_pareto.png",
             mime="image/png",
-            use_container_width=True
+           
         )
 
         
