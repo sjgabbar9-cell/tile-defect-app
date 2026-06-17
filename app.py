@@ -339,13 +339,13 @@ elif st.session_state.page == "history":
     )
     if st.button("View Details"):
         record = summary.loc[selected_index].to_dict()
-        df_full = pd.read_csv(CSV_PATH)
+        df_full = filtered_df.copy()
 
             # ✅ Load defects of selected batch
         batch_df = df_full[
-            (df_full["Date"].astype(str) == str(record["Date"])) &
-            (df_full["Batch"].astype(str) == str(record["Batch"])) &
-            (df_full["Item"].astype(str) == str(record["Item"]))
+            (df_full["Date"] == pd.to_datetime(record["Date"])) &
+            (df_full["Batch"] == record["Batch"]) &
+            (df_full["Item"] == record["Item"])
         ]
 
     # ✅ Convert to Screen 3 structure
