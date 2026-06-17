@@ -340,6 +340,67 @@ elif st.session_state.page == "history":
             st.session_state.page = "detail"
 
         st.dataframe(summary, use_container_width=True)
+        import matplotlib.pyplot as plt
+
+        st.markdown("## 📊 Defect Pareto Analysis")
+
+        # ✅ Use full dataset (not summary)
+        df_full = df.copy()
+
+# =========================
+       # ✅ 1. DEFECT-WISE PARETO
+# =========================
+       st.markdown("### 1️⃣ Defect-wise Pareto")
+
+       defect_data = df_full.groupby("Defect", as_index=False)["Qty"].sum()
+
+       # sort descending
+       defect_data = defect_data.sort_values(by="Qty", ascending=False)
+
+       # cumulative %
+       defect_data["Cum %"] = defect_data["Qty"].cumsum() / defect_data["Qty"].sum() * 100
+
+       fig, ax1 = plt.subplots()
+
+       # bar chart
+       ax1.bar(defect_data["Defect"], defect_data["Qty"])
+       ax1.set_ylabel("Quantity")
+       ax1.set_xticklabels(defect_data["Defect"], rotation=60, ha='right')
+       # cumulative line
+       ax2 = ax1.twinx()
+       ax2.plot(defect_data["Defect"], defect_data["Cum %"], color="red", marker="o")
+       ax2.set_ylabel("Cumulative %")
+
+       plt.title("Defect-wise Pareto")
+
+       st.pyplot(fig)
+
+
+# =========================
+# ✅ 2. DEPARTMENT-WISE PARETO
+# =========================
+       st.markdown("### 2️⃣ Department-wise Pareto")
+
+       dept_data = df_full.groupby("Department", as_index=False)["Qty"].sum()
+
+       dept_data = dept_data.sort_values(by="Qty", ascending=False)
+
+       dept_data["Cum %"] = dept_data["Qty"].cumsum() / dept_data["Qty"].sum() * 100
+
+       fig2, ax1 = plt.subplots()
+
+# bar
+       ax1.bar(dept_data["Department"], dept_data["Qty"])
+       ax1.set_ylabel("Quantity")
+
+# line
+       ax2 = ax1.twinx()
+       ax2.plot(dept_data["Department"], dept_data["Cum %"], color="red", marker="o")
+       ax2.set_ylabel("Cumulative %")
+
+       plt.title("Department-wise Pareto")
+
+       st.pyplot(fig2)
 
         
         # ✅ Batch Details
