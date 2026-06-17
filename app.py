@@ -392,7 +392,7 @@ elif st.session_state.page == "history":
 
         dept_data["Cum %"] = dept_data["Qty"].cumsum() / dept_data["Qty"].sum() * 100
 
-        fig2, ax1 = plt.subplots(figsize=(3.2,2.2))  # ✅ SMALL SIZE
+        fig2, ax1 = plt.subplots(figsize=(3.2,1.5))  # ✅ SMALL SIZE
 
 # bar
         ax1.bar(dept_data["Department"], dept_data["Qty"])
