@@ -305,6 +305,9 @@ elif st.session_state.page == "history":
             "Select Record to View Details",
             summary.index
         )
+        if st.button("View Details"):
+            st.session_state.selected_record = summary.loc[selected_index].to_dict()
+            st.session_state.page = "detail"
 
         st.dataframe(summary, use_container_width=True)
 
@@ -358,3 +361,80 @@ elif st.session_state.page == "history":
 
     if st.button("⬅ Back"):
         st.session_state.page = "dashboard"
+# =========================
+# SCREEN 7: DETAIL PAGE ✅
+# =========================
+elif st.session_state.page == "detail":
+
+    st.subheader("Detailed Defect Report")
+
+    if "selected_record" not in st.session_state:
+        st.warning("No record selected")
+        if st.button("⬅ Back"):
+            st.session_state.page = "history"
+        st.stop()
+
+    record = st.session_state.selected_record
+
+    # ✅ Show Batch Details
+    st.markdown("### Batch Details")
+
+    col1, col2, col3 = st.columns(3)
+    col1.write("Date:", record["Date"])
+    col2.write("Shift:", record["Shift"])
+    col3.write("Operator:", record["Operator"])
+
+    col1, col2, col3 = st.columns(3)
+    col1.write("Item:", record["Item"])
+    col2.write("Batch:", record["Batch"])
+    col3.write("Size:", record["Size"])
+
+    st.write("Surface:", record["Surface"])
+
+    st.divider()
+
+    # ✅ Load full dataset
+    df = pd.read_csv(CSV_PATH)
+
+    # ✅ Filter for selected batch
+    filtered_df = df[
+        (df["Date"] == str(record["Date"])) &
+        (df["Batch"] == str(record["Batch"])) &
+        (df["Item"] == str(record["Item"]))
+    ]
+
+    if filtered_df.empty:
+        st.warning("No defect data found")
+    else:
+
+        st.markdown("### Defect Details")
+
+        # ✅ Group display like entry format
+        last_dept = None
+
+        col1, col2, col3, col4 = st.columns([1, 3, 4, 3])
+        col1.markdown("**S.No.**")
+        col2.markdown("**Department**")
+        col3.markdown("**Defect**")
+        col4.markdown("**Quantity**")
+
+        st.divider()
+
+        for i, row in filtered_df.iterrows():
+
+            c1, c2, c3, c4 = st.columns([1, 3, 4, 3])
+
+            c1.write(i + 1)
+
+            dept_display = row["Department"] if row["Department"] != last_dept else ""
+            c2.write(dept_display)
+            last_dept = row["Department"]
+
+            c3.write(row["Defect"])
+            c4.write(row["Qty"])
+
+    st.divider()
+
+    if st.button("⬅ Back to History"):
+        st.session_state.page = "history"
+
