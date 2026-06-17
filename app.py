@@ -358,12 +358,12 @@ elif st.session_state.page == "history":
     st.write(f"Surface: {selected_row['Surface']}")
 
        # ✅ Defect Details
-        st.subheader("Defect Details")
+    st.subheader("Defect Details")
 
-        filtered_df = df[
-            (df["Date"] == str(selected_row["Date"])) &
-            (df["Batch"] == str(selected_row["Batch"])) &
-            (df["Item"] == str(selected_row["Item"]))
+    filtered_df = df[
+        (df["Date"] == str(selected_row["Date"])) &
+        (df["Batch"] == str(selected_row["Batch"])) &
+        (df["Item"] == str(selected_row["Item"]))
         ]
         if filtered_df.empty:
             st.warning("No matching defect data found")
