@@ -380,16 +380,15 @@ elif st.session_state.page == "detail":
     st.markdown("### Batch Details")
 
     col1, col2, col3 = st.columns(3)
-    col1.write("Date:", record["Date"])
-    col2.write("Shift:", record["Shift"])
-    col3.write("Operator:", record["Operator"])
+    col1.write(f"Date: {record['Date']}")
+    col2.write(f"Shift: {record['Shift']}")
+    col3.write(f"Operator: {record['Operator']}")
 
-    col1, col2, col3 = st.columns(3)
-    col1.write("Item:", record["Item"])
-    col2.write("Batch:", record["Batch"])
-    col3.write("Size:", record["Size"])
+    col1.write(f"Item: {record['Item']}")
+    col2.write(f"Batch: {record['Batch']}")
+    col3.write(f"Size: {record['Size']}")
 
-    st.write("Surface:", record["Surface"])
+    st.write(f"Surface: {record['Surface']}")
 
     st.divider()
 
