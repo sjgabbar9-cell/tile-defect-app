@@ -340,7 +340,7 @@ elif st.session_state.page == "history":
             st.session_state.page = "detail"
 
         st.dataframe(summary, use_container_width=True)
-        import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
         st.markdown("## 📊 Defect Pareto Analysis")
 
