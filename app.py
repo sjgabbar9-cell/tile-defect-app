@@ -371,7 +371,11 @@ elif st.session_state.page == "history":
         fig, ax1 = plt.subplots(figsize=(3.2,2.2))  # ✅ SMALL SIZE
 
        # bar chart
-        ax1.bar(defect_data["Defect"], defect_data["Qty"])
+        labels = defect_data["Defect"].str.lower().str.capitalize()
+
+        ax1.bar(labels, defect_data["Qty"])
+        ax1.set_xticks(range(len(labels)))
+        ax1.set_xticklabels(labels, rotation=60, ha='right')
         
         ax1.tick_params(axis='x', labelsize=7)
 
@@ -402,7 +406,11 @@ elif st.session_state.page == "history":
         fig2, ax1 = plt.subplots(figsize=(3.2,3.2))  # ✅ SMALL SIZE
 
 # bar
-        ax1.bar(dept_data["Department"], dept_data["Qty"])
+        labels = dept_data["Department"].str.lower().str.capitalize()
+
+        ax1.bar(labels, dept_data["Qty"])
+        ax1.set_xticks(range(len(labels)))
+        ax1.set_xticklabels(labels)
         
         ax1.tick_params(axis='x', labelsize=7)
 
