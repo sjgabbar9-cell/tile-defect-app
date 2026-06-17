@@ -317,7 +317,7 @@ elif st.session_state.page == "history":
     ]
 
    
-        df["Date"] = df["Date"].astype(str)
+    df["Date"] = df["Date"].astype(str)
 
         # ✅ Aggregate batch-level data
         summary = filtered_df.groupby(
