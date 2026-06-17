@@ -320,13 +320,13 @@ elif st.session_state.page == "history":
     df["Date"] = df["Date"].astype(str)
 
         # ✅ Aggregate batch-level data
-        summary = filtered_df.groupby(
-            ["Date", "Shift", "Operator", "Item", "Batch", "Size", "Surface"],
-            as_index=False
-        ).agg({
-            "Defective Tiles": "max",
-            "Total Tiles": "max"
-        })
+    summary = filtered_df.groupby(
+        ["Date", "Shift", "Operator", "Item", "Batch", "Size", "Surface"],
+        as_index=False
+    ).agg({
+        "Defective Tiles": "max",
+        "Total Tiles": "max"
+    })
 
         # ✅ Defect %
         summary["Defect %"] = (
