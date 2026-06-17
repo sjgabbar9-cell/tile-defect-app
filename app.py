@@ -298,7 +298,6 @@ elif st.session_state.page == "history":
 
         # ✅ Defect %
         summary["Defect %"] = (
-            summary["Date"] == summary["Date"].astype(str)
             summary["Defective Tiles"] / summary["Total Tiles"] * 100
         ).round(2)
         
