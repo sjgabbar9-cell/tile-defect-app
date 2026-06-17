@@ -470,7 +470,7 @@ elif st.session_state.page == "detail":
     )
 
 # ✅ BACK BUTTON
-if st.button("⬅ Back to History"):
-    st.session_state.page = "history"
+    if st.button("⬅ Back to History"):
+        st.session_state.page = "history"
 
 
