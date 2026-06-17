@@ -384,7 +384,9 @@ elif st.session_state.page == "history":
         ax1.set_xticklabels(defect_data["Defect"], rotation=60, ha='right')
        # cumulative line
         ax2 = ax1.twinx()
-        ax2.plot(defect_data["Defect"], defect_data["Cum %"], color="red", marker="o")
+        x = range(len(labels))
+        ax2.plot(x, defect_data["Cum %"], color="red", marker="o")
+
         ax2.set_ylabel("Cumulative %")
 
         plt.title("Defect-wise Pareto")
@@ -419,7 +421,11 @@ elif st.session_state.page == "history":
 
 # line
         ax2 = ax1.twinx()
-        ax2.plot(dept_data["Department"], dept_data["Cum %"], color="red", marker="o")
+        
+        x = range(len(labels))
+
+        ax2.plot(x, dept_data["Cum %"], color="red", marker="o")
+
         ax2.set_ylabel("Cumulative %")
 
         plt.title("Department-wise Pareto")
