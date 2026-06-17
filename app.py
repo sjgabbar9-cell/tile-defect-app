@@ -345,13 +345,37 @@ elif st.session_state.page == "history":
             st.session_state.page = "detail"
 
         st.dataframe(summary, use_container_width=True)
-        
+   # ✅ Date Range Filter
+    st.markdown("### 📅 Filter by Date")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        start_date = st.date_input(
+        "From Date",
+        pd.to_datetime(df["Date"]).min()
+        )
+
+    with col2:
+        end_date = st.date_input(
+        "To Date",
+        pd.to_datetime(df["Date"]).max()
+        )     
+    # ✅ Convert Date column properly
+    df["Date"] = pd.to_datetime(df["Date"])
+
+# ✅ Apply filter
+    filtered_df = df[
+        (df["Date"] >= pd.to_datetime(start_date)) &
+        (df["Date"] <= pd.to_datetime(end_date))
+    ]
    
 
     st.markdown("## 📊 Defect Pareto Analysis")
 
         # ✅ Use full dataset (not summary)
-    df_full = df.copy()
+    df_full = filtered_df.copy()
+
     col1, col2 = st.columns(2)
 
 # =========================
