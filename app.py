@@ -365,13 +365,13 @@ elif st.session_state.page == "history":
         (df["Batch"] == str(selected_row["Batch"])) &
         (df["Item"] == str(selected_row["Item"]))
         ]
-        if filtered_df.empty:
-            st.warning("No matching defect data found")
-        else:
-            st.dataframe(
-                filtered_df[["Department", "Defect", "Qty"]],
-                use_container_width=True
-            )
+    if filtered_df.empty:
+        st.warning("No matching defect data found")
+    else:
+        st.dataframe(
+            filtered_df[["Department", "Defect", "Qty"]],
+            use_container_width=True
+        )
 
 
 
