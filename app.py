@@ -337,13 +337,7 @@ elif st.session_state.page == "history":
             filtered_df[["Department", "Defect", "Qty"]],
             use_container_width=True
         )
-for dept in filtered_df["Department"].unique():
-    st.markdown(f"### {dept}")
 
-    sub = filtered_df[filtered_df["Department"] == dept]
-
-    for _, r in sub.iterrows():
-        st.write(f"{r['Defect']} : {r['Qty']}")
 
 
 
