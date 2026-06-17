@@ -352,8 +352,8 @@ elif st.session_state.page == "history":
         flat = []
         for _, row in batch_df.iterrows():
             flat.append({
-                ]"dept": row["Department"],
-                 "defect": row["Defect"],
+                "dept": row["Department"],
+                "defect": row["Defect"],
                 "qty": row["Qty"]
              })
 
