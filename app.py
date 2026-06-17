@@ -317,13 +317,13 @@ elif st.session_state.page == "history":
             ]
 
     # ✅ Convert to Screen 3 structure
-    flat = []
-    for _, row in batch_df.iterrows():
-        flat.append({
-            "dept": row["Department"],
-            "defect": row["Defect"],
-            "qty": row["Qty"]
-        })
+            flat = []
+            for _, row in batch_df.iterrows():
+                flat.append({
+                    "dept": row["Department"],
+                    "defect": row["Defect"],
+                    "qty": row["Qty"]
+                })
 
     # ✅ Store into session
     st.session_state.flat_defects = flat
