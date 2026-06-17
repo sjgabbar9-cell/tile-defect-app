@@ -368,6 +368,9 @@ elif st.session_state.page == "history":
 
        # bar chart
         ax1.bar(defect_data["Defect"], defect_data["Qty"])
+        
+        ax1.tick_params(axis='x', labelsize=7)
+
         ax1.set_ylabel("Quantity")
         ax1.set_xticklabels(defect_data["Defect"], rotation=60, ha='right')
        # cumulative line
@@ -396,6 +399,9 @@ elif st.session_state.page == "history":
 
 # bar
         ax1.bar(dept_data["Department"], dept_data["Qty"])
+        
+        ax1.tick_params(axis='x', labelsize=7)
+
         ax1.set_ylabel("Quantity")
 
 # line
