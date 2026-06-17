@@ -180,17 +180,19 @@ elif st.session_state.page == "departments":
 
     # ✅ Initialize flat structure
     # ✅ Always initialize full defect list
-    flat = []
+    # ✅ Initialize ONLY once (retain values)
+    if "flat_defects" not in st.session_state:
+        flat = []
 
-    for dept, defects in DEFECTS.items():
-        for d in defects:
-            flat.append({
-                "dept": dept,
-                "defect": d,
-                "qty": 0
-            })
+        for dept, defects in DEFECTS.items():
+            for d in defects:
+                flat.append({
+                    "dept": dept,
+                    "defect": d,
+                    "qty": 0
+                })
 
-    st.session_state.flat_defects = flat
+        st.session_state.flat_defects = flat
 
     data = st.session_state.flat_defects
 
