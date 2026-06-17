@@ -353,57 +353,59 @@ elif st.session_state.page == "history":
 # =========================
        # ✅ 1. DEFECT-WISE PARETO
 # =========================
-    st.markdown("### 1️⃣ Defect-wise Pareto")
+    with col1:
+        st.markdown("### 1️⃣ Defect-wise Pareto")
 
-    defect_data = df_full.groupby("Defect", as_index=False)["Qty"].sum()
+        defect_data = df_full.groupby("Defect", as_index=False)["Qty"].sum()
 
        # sort descending
-    defect_data = defect_data.sort_values(by="Qty", ascending=False)
+        defect_data = defect_data.sort_values(by="Qty", ascending=False)
 
        # cumulative %
-    defect_data["Cum %"] = defect_data["Qty"].cumsum() / defect_data["Qty"].sum() * 100
+        defect_data["Cum %"] = defect_data["Qty"].cumsum() / defect_data["Qty"].sum() * 100
 
-    fig, ax1 = plt.subplots(figsize=(5,3))  # ✅ SMALL SIZE
+        fig, ax1 = plt.subplots(figsize=(5,3))  # ✅ SMALL SIZE
 
        # bar chart
-    ax1.bar(defect_data["Defect"], defect_data["Qty"])
-    ax1.set_ylabel("Quantity")
-    ax1.set_xticklabels(defect_data["Defect"], rotation=60, ha='right')
+        ax1.bar(defect_data["Defect"], defect_data["Qty"])
+        ax1.set_ylabel("Quantity")
+        ax1.set_xticklabels(defect_data["Defect"], rotation=60, ha='right')
        # cumulative line
-    ax2 = ax1.twinx()
-    ax2.plot(defect_data["Defect"], defect_data["Cum %"], color="red", marker="o")
-    ax2.set_ylabel("Cumulative %")
+        ax2 = ax1.twinx()
+        ax2.plot(defect_data["Defect"], defect_data["Cum %"], color="red", marker="o")
+        ax2.set_ylabel("Cumulative %")
 
-    plt.title("Defect-wise Pareto")
+        plt.title("Defect-wise Pareto")
 
-    st.pyplot(fig)
+        st.pyplot(fig)
 
 
 # =========================
 # ✅ 2. DEPARTMENT-WISE PARETO
 # =========================
-    st.markdown("### 2️⃣ Department-wise Pareto")
+    with col1:
+        st.markdown("### 2️⃣ Department-wise Pareto")
 
-    dept_data = df_full.groupby("Department", as_index=False)["Qty"].sum()
+        dept_data = df_full.groupby("Department", as_index=False)["Qty"].sum()
 
-    dept_data = dept_data.sort_values(by="Qty", ascending=False)
+        dept_data = dept_data.sort_values(by="Qty", ascending=False)
 
-    dept_data["Cum %"] = dept_data["Qty"].cumsum() / dept_data["Qty"].sum() * 100
+        dept_data["Cum %"] = dept_data["Qty"].cumsum() / dept_data["Qty"].sum() * 100
 
-    fig2, ax1 = plt.subplots(figsize=(5,3))  # ✅ SMALL SIZE
+        fig2, ax1 = plt.subplots(figsize=(5,3))  # ✅ SMALL SIZE
 
 # bar
-    ax1.bar(dept_data["Department"], dept_data["Qty"])
-    ax1.set_ylabel("Quantity")
+        ax1.bar(dept_data["Department"], dept_data["Qty"])
+        ax1.set_ylabel("Quantity")
 
 # line
-    ax2 = ax1.twinx()
-    ax2.plot(dept_data["Department"], dept_data["Cum %"], color="red", marker="o")
-    ax2.set_ylabel("Cumulative %")
+        ax2 = ax1.twinx()
+        ax2.plot(dept_data["Department"], dept_data["Cum %"], color="red", marker="o")
+        ax2.set_ylabel("Cumulative %")
 
-    plt.title("Department-wise Pareto")
+        plt.title("Department-wise Pareto")
 
-    st.pyplot(fig2)
+        st.pyplot(fig2)
 
         
         # ✅ Batch Details
