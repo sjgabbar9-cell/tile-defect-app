@@ -285,6 +285,31 @@ elif st.session_state.page == "summary":
 elif st.session_state.page == "history":
 
     st.subheader("Defect History")
+    # ✅ Date Range Filter
+    st.markdown("### 📅 Filter by Date")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        start_date = st.date_input(
+            "From Date",
+            pd.to_datetime(df["Date"]).min()
+        )
+
+    with col2:
+        end_date = st.date_input(
+            "To Date",
+            pd.to_datetime(df["Date"]).max()
+        )
+
+# ✅ Convert Date column
+    df["Date"] = pd.to_datetime(df["Date"])
+
+# ✅ Apply filter
+    filtered_df = df[
+        (df["Date"] >= pd.to_datetime(start_date)) &
+        (df["Date"] <= pd.to_datetime(end_date))
+    ]
 
     if not os.path.exists(CSV_PATH):
         st.warning("No data available")
@@ -293,7 +318,7 @@ elif st.session_state.page == "history":
         df["Date"] = df["Date"].astype(str)
 
         # ✅ Aggregate batch-level data
-        summary = df.groupby(
+        summary = filtered_df.groupby(
             ["Date", "Shift", "Operator", "Item", "Batch", "Size", "Surface"],
             as_index=False
         ).agg({
@@ -316,9 +341,9 @@ elif st.session_state.page == "history":
 
             # ✅ Load defects of selected batch
             batch_df = df_full[
-                (df_full["Date"].astype(str) == str(record["Date"])) &
-                (df_full["Batch"].astype(str) == str(record["Batch"])) &
-                (df_full["Item"].astype(str) == str(record["Item"]))
+                (filtered_df_full["Date"].astype(str) == str(record["Date"])) &
+                (filtered_df_full["Batch"].astype(str) == str(record["Batch"])) &
+                (filtered_df_full["Item"].astype(str) == str(record["Item"]))
             ]
 
     # ✅ Convert to Screen 3 structure
