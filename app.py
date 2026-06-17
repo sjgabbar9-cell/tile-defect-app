@@ -179,16 +179,18 @@ elif st.session_state.page == "departments":
     st.subheader("Defect Entry (All Departments)")
 
     # ✅ Initialize flat structure
-    if "flat_defects" not in st.session_state:
-        flat = []
-        for dept, defects in DEFECTS.items():
-            for d in defects:
-                flat.append({
-                    "dept": dept,
-                    "defect": d,
-                    "qty": 0
-                })
-        st.session_state.flat_defects = flat
+    # ✅ Always initialize full defect list
+    flat = []
+
+    for dept, defects in DEFECTS.items():
+        for d in defects:
+            flat.append({
+                "dept": dept,
+                "defect": d,
+                "qty": 0
+            })
+
+    st.session_state.flat_defects = flat
 
     data = st.session_state.flat_defects
 
