@@ -310,19 +310,20 @@ elif st.session_state.page == "history":
         selected_row = summary.loc[selected_index]
 
         # ✅ Batch Details
+        selected_row = summary.loc[selected_index].to_dict()
+        # ✅ Batch Details
         st.subheader("Batch Details")
+        col1, col2, col3 = st.columns(3)
+        col1.write("Date:", selected_row.get("Date", ""))
+        col2.write("Shift:", selected_row.get("Shift", ""))
+        col3.write("Operator:", selected_row.get("Operator", ""))
 
         col1, col2, col3 = st.columns(3)
-        col1.write("Date:", str(selected_row.get("Date", "")))
-        col2.write("Shift:", str(selected_row.get("Shift", "")))
-        col3.write("Operator:", str(selected_row.get("Operator", "")))
+        col1.write("Item:", selected_row.get("Item", ""))
+        col2.write("Batch:", selected_row.get("Batch", ""))
+        col3.write("Size:", selected_row.get("Size", ""))
 
-
-        col1, col2, col3 = st.columns(3)
-        col1.write("Item:", str(selected_row.get("Item", "")))
-        col2.write("Batch:", str(selected_row.get("Batch", "")))
-        col3.write("Size:", str(selected_row.get("Size", "")))
-        st.write("Surface:", str(selected_row.get("Surface", "")))
+        st.write("Surface:", selected_row.get("Surface", ""))
         # ✅ Defect Details
         st.subheader("Defect Details")
 
