@@ -339,7 +339,7 @@ elif st.session_state.page == "history":
     )
     if st.button("View Details"):
         record = summary.loc[selected_index].to_dict()
-         df_full = pd.read_csv(CSV_PATH)
+        df_full = pd.read_csv(CSV_PATH)
 
             # ✅ Load defects of selected batch
         batch_df = df_full[
