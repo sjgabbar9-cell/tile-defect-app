@@ -299,8 +299,8 @@ elif st.session_state.page == "history":
         summary["Defect %"] = (
             summary["Defective Tiles"] / summary["Total Tiles"] * 100
         ).round(2)
-
-       selected_index = st.selectbox(
+        
+        selected_index = st.selectbox(
             "Select Record to View Details",
             summary.index
         )
