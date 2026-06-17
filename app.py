@@ -313,24 +313,23 @@ elif st.session_state.page == "history":
         st.subheader("Batch Details")
 
         col1, col2, col3 = st.columns(3)
-        col1.write("Date:", selected_row["Date"])
-        col2.write("Shift:", selected_row["Shift"])
-        col3.write("Operator:", selected_row["Operator"])
+        col1.write("Date:", str(selected_row.get("Date", "")))
+        col2.write("Shift:", str(selected_row.get("Shift", "")))
+        col3.write("Operator:", str(selected_row.get("Operator", "")))
+
 
         col1, col2, col3 = st.columns(3)
-        col1.write("Item:", selected_row["Item"])
-        col2.write("Batch:", selected_row["Batch"])
-        col3.write("Size:", selected_row["Size"])
-
-        st.write("Surface:", selected_row["Surface"])
-
+        col1.write("Item:", str(selected_row.get("Item", "")))
+        col2.write("Batch:", str(selected_row.get("Batch", "")))
+        col3.write("Size:", str(selected_row.get("Size", "")))
+        st.write("Surface:", str(selected_row.get("Surface", "")))
         # ✅ Defect Details
         st.subheader("Defect Details")
 
         filtered_df = df[
-            (df["Date"] == selected_row["Date"]) &
-            (df["Batch"] == selected_row["Batch"]) &
-            (df["Item"] == selected_row["Item"])
+        (df["Date"] == selected_row["Date"]) &
+        (df["Batch"] == selected_row["Batch"]) &
+        (df["Item"] == selected_row["Item"])
         ]
 
         st.dataframe(
