@@ -383,7 +383,7 @@ elif st.session_state.page == "history":
 # =========================
 # ✅ 2. DEPARTMENT-WISE PARETO
 # =========================
-    with col1:
+    with col2:
         st.markdown("### 2️⃣ Department-wise Pareto")
 
         dept_data = df_full.groupby("Department", as_index=False)["Qty"].sum()
