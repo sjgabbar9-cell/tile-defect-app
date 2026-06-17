@@ -420,6 +420,20 @@ elif st.session_state.page == "history":
         plt.title("Defect-wise Pareto")
 
         st.pyplot(fig)
+        
+        import io
+        buf1 = io.BytesIO()
+        fig.savefig(buf1, format="png", bbox_inches="tight")
+        buf1.seek(0)
+
+        st.download_button(
+            label="⬇ Download Defect Pareto",
+            data=buf1,
+            file_name="defect_pareto.png",
+            mime="image/png",
+            use_container_width=True
+        )
+
 
 
 # =========================
@@ -459,6 +473,18 @@ elif st.session_state.page == "history":
         plt.title("Department-wise Pareto")
 
         st.pyplot(fig2)
+        # ✅ Save image to buffer
+        buf2 = io.BytesIO()
+        fig2.savefig(buf2, format="png", bbox_inches="tight")
+        buf2.seek(0)
+
+        st.download_button(
+            label="⬇ Download Department Pareto",
+            data=buf2,
+            file_name="department_pareto.png",
+            mime="image/png",
+            use_container_width=True
+        )
 
         
         # ✅ Batch Details
