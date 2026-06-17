@@ -293,7 +293,7 @@ elif st.session_state.page == "history":
     with col1:
         start_date = st.date_input(
             "From Date",
-            pd.to_datetime(df["Date"]).min()
+             pd.to_datetime(df["Date"]).min()
         )
 
     with col2:
