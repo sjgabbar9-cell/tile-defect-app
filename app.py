@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
+import matplotlib.pyplot as plt
 
 # =========================
 # PAGE CONFIG
@@ -341,7 +342,7 @@ elif st.session_state.page == "history":
 
         st.dataframe(summary, use_container_width=True)
         
-    import matplotlib.pyplot as plt
+   
 
     st.markdown("## 📊 Defect Pareto Analysis")
 
