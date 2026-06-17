@@ -451,3 +451,26 @@ elif st.session_state.page == "detail":
 
     if st.button("⬅ Back to History"):
         st.session_state.page = "history"
+    # ✅ Prepare download data
+    download_df = pd.DataFrame(data)
+    download_df = download_df.rename(columns={
+        "dept": "Department",
+        "defect": "Defect",
+        "qty": "Quantity"
+    })
+
+    csv_data = download_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="⬇ Download Defect Details",
+        data=csv_data,
+        file_name="defect_details.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
+
+# ✅ BACK BUTTON
+if st.button("⬅ Back to History"):
+    st.session_state.page = "history"
+
+
