@@ -283,6 +283,11 @@ elif st.session_state.page == "summary":
 # SCREEN 6: HISTORY ✅
 # =========================
 elif st.session_state.page == "history":
+     
+    if not os.path.exists(CSV_PATH):
+        st.warning("No data available")
+    else:
+        df = pd.read_csv(CSV_PATH)
 
     st.subheader("Defect History")
     # ✅ Date Range Filter
@@ -311,10 +316,7 @@ elif st.session_state.page == "history":
         (df["Date"] <= pd.to_datetime(end_date))
     ]
 
-    if not os.path.exists(CSV_PATH):
-        st.warning("No data available")
-    else:
-        df = pd.read_csv(CSV_PATH)
+   
         df["Date"] = df["Date"].astype(str)
 
         # ✅ Aggregate batch-level data
