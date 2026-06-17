@@ -361,7 +361,7 @@ elif st.session_state.page == "history":
         st.markdown("### 1️⃣ Defect-wise Pareto")
 
         defect_data = df_full.groupby("Defect", as_index=False)["Qty"].sum()
-        dept_data = dept_data.sort_values(by="Qty", ascending=False)
+        defect_data = defect_data.sort_values(by="Qty", ascending=False)
 
        # sort descending
         defect_data = defect_data.head(10)
