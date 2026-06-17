@@ -317,16 +317,16 @@ elif st.session_state.page == "history":
         # ✅ Batch Details
         st.subheader("Batch Details")
         col1, col2, col3 = st.columns(3)
-        col1.write("Date:", st.session_state.batch.get("date", ""))
-        col2.write("Shift:", st.session_state.batch.get("shift", ""))
-        col3.write("Operator:", st.session_state.batch.get("operator", ""))
+        col1.write(f"Date: {selected_row['Date']}")
+        col2.write(f"Shift: {selected_row['Shift']}")
+        col3.write(f"Operator: {selected_row['Operator']}")
 
         col1, col2, col3 = st.columns(3)
-        col1.write("Item:", st.session_state.batch.get("item_code", ""))
-        col2.write("Batch:", st.session_state.batch.get("batch_code", ""))
-        col3.write("Size:", st.session_state.batch.get("size", ""))
+        col1.write(f"Item: {selected_row['Item']}")
+        col2.write(f"Batch: {selected_row['Batch']}")
+        col3.write(f"Size: {selected_row['Size']}")
+        st.write(f"Surface: {selected_row['Surface']}")
 
-        st.write("Surface:", st.session_state.batch.get("surface", ""))
        # ✅ Defect Details
         st.subheader("Defect Details")
 
