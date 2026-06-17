@@ -329,49 +329,49 @@ elif st.session_state.page == "history":
     })
 
         # ✅ Defect %
-        summary["Defect %"] = (
-            summary["Defective Tiles"] / summary["Total Tiles"] * 100
-        ).round(2)
+    summary["Defect %"] = (
+        summary["Defective Tiles"] / summary["Total Tiles"] * 100
+    ).round(2)
         
-        selected_index = st.selectbox(
-            "Select Record to View Details",
-            summary.index
-        )
-        if st.button("View Details"):
-            record = summary.loc[selected_index].to_dict()
-            df_full = pd.read_csv(CSV_PATH)
+    selected_index = st.selectbox(
+        "Select Record to View Details",
+        summary.index
+    )
+    if st.button("View Details"):
+        record = summary.loc[selected_index].to_dict()
+         df_full = pd.read_csv(CSV_PATH)
 
             # ✅ Load defects of selected batch
-            batch_df = df_full[
-                (filtered_df_full["Date"].astype(str) == str(record["Date"])) &
-                (filtered_df_full["Batch"].astype(str) == str(record["Batch"])) &
-                (filtered_df_full["Item"].astype(str) == str(record["Item"]))
-            ]
+        batch_df = df_full[
+            (filtered_df_full["Date"].astype(str) == str(record["Date"])) &
+            (filtered_df_full["Batch"].astype(str) == str(record["Batch"])) &
+            (filtered_df_full["Item"].astype(str) == str(record["Item"]))
+        ]
 
     # ✅ Convert to Screen 3 structure
-            flat = []
-            for _, row in batch_df.iterrows():
-                flat.append({
-                    "dept": row["Department"],
-                    "defect": row["Defect"],
-                    "qty": row["Qty"]
-                })
+        flat = []
+        for _, row in batch_df.iterrows():
+            flat.append({
+                ]"dept": row["Department"],
+                 "defect": row["Defect"],
+                "qty": row["Qty"]
+             })
 
     # ✅ Store into session
-            st.session_state.flat_defects = flat
-            st.session_state.batch = {
-                "date": record["Date"],
-                "shift": record["Shift"],
-                "operator": record["Operator"],
-                "item_code": record["Item"],
-                "batch_code": record["Batch"],
-                "size": record["Size"],
-                "surface": record["Surface"],
-            }
+        st.session_state.flat_defects = flat
+        st.session_state.batch = {
+            "date": record["Date"],
+            "shift": record["Shift"],
+            "operator": record["Operator"],
+            "item_code": record["Item"],
+            "batch_code": record["Batch"],
+            "size": record["Size"],
+            "surface": record["Surface"],
+        }
 
-            st.session_state.page = "detail"
+         st.session_state.page = "detail"
 
-        st.dataframe(summary, use_container_width=True)
+    st.dataframe(summary, use_container_width=True)
    # ✅ Date Range Filter
     st.markdown("### 📅 Filter by Date")
 
