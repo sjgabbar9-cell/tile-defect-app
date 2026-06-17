@@ -300,7 +300,53 @@ elif st.session_state.page == "history":
             summary["Defective Tiles"] / summary["Total Tiles"] * 100
         ).round(2)
 
+       selected_index = st.selectbox(
+            "Select Record to View Details",
+            summary.index
+        )
+
         st.dataframe(summary, use_container_width=True)
+
+        selected_row = summary.loc[selected_index]
+
+        # ✅ Batch Details
+        st.subheader("Batch Details")
+
+        col1, col2, col3 = st.columns(3)
+        col1.write("Date:", selected_row["Date"])
+        col2.write("Shift:", selected_row["Shift"])
+        col3.write("Operator:", selected_row["Operator"])
+
+        col1, col2, col3 = st.columns(3)
+        col1.write("Item:", selected_row["Item"])
+        col2.write("Batch:", selected_row["Batch"])
+        col3.write("Size:", selected_row["Size"])
+
+        st.write("Surface:", selected_row["Surface"])
+
+        # ✅ Defect Details
+        st.subheader("Defect Details")
+
+        filtered_df = df[
+            (df["Date"] == selected_row["Date"]) &
+            (df["Batch"] == selected_row["Batch"]) &
+            (df["Item"] == selected_row["Item"])
+        ]
+
+        st.dataframe(
+            filtered_df[["Department", "Defect", "Qty"]],
+            use_container_width=True
+        )
+for dept in filtered_df["Department"].unique():
+    st.markdown(f"### {dept}")
+
+    sub = filtered_df[filtered_df["Department"] == dept]
+
+    for _, r in sub.iterrows():
+        st.write(f"{r['Defect']} : {r['Qty']}")
+
+
+
 
         # ✅ Download button at top
         csv = summary.to_csv(index=False).encode("utf-8")
