@@ -343,19 +343,19 @@ elif st.session_state.page == "history":
 
         
         # ✅ Batch Details
-        selected_row = summary.loc[selected_index].to_dict()
+    selected_row = summary.loc[selected_index].to_dict()
         # ✅ Batch Details
-        st.subheader("Batch Details")
-        col1, col2, col3 = st.columns(3)
-        col1.write(f"Date: {selected_row['Date']}")
-        col2.write(f"Shift: {selected_row['Shift']}")
-        col3.write(f"Operator: {selected_row['Operator']}")
+    st.subheader("Batch Details")
+    col1, col2, col3 = st.columns(3)
+    col1.write(f"Date: {selected_row['Date']}")
+    col2.write(f"Shift: {selected_row['Shift']}")
+    col3.write(f"Operator: {selected_row['Operator']}")
 
-        col1, col2, col3 = st.columns(3)
-        col1.write(f"Item: {selected_row['Item']}")
-        col2.write(f"Batch: {selected_row['Batch']}")
-        col3.write(f"Size: {selected_row['Size']}")
-        st.write(f"Surface: {selected_row['Surface']}")
+    col1, col2, col3 = st.columns(3)
+    col1.write(f"Item: {selected_row['Item']}")
+    col2.write(f"Batch: {selected_row['Batch']}")
+    col3.write(f"Size: {selected_row['Size']}")
+    st.write(f"Surface: {selected_row['Surface']}")
 
        # ✅ Defect Details
         st.subheader("Defect Details")
