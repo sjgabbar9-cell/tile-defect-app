@@ -469,8 +469,6 @@ elif st.session_state.page == "detail":
         use_container_width=True
     )
 
-# ✅ BACK BUTTON
-    if st.button("⬅ Back to History"):
-        st.session_state.page = "history"
+
 
 
